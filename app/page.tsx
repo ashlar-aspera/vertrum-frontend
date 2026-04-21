@@ -485,11 +485,24 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
           ) : null}
 
-          {!isBlocked ? (
-            <div className="mt-6">
-              <DebugDrawer debug={data.debug} />
-            </div>
-          ) : null}
+         {!isBlocked ? (
+  <div className="mt-6">
+    <DebugDrawer
+      debug={{
+        candidateCount: data.debug?.candidateCount ?? 0,
+        validCandidateCount: data.debug?.validCandidateCount ?? 0,
+        rankedCandidateCount: data.debug?.rankedCandidateCount ?? 0,
+        primaryRankScore: data.debug?.primaryRankScore ?? null,
+        primaryChainType: data.debug?.primaryChainType ?? null,
+        flags: data.debug?.flags ?? {},
+        rankingVisibility: data.debug?.rankingVisibility ?? {},
+        sourceInsightId: data.debug?.sourceInsightId ?? null,
+        sourceHookId: data.debug?.sourceHookId ?? null,
+        sourceScriptId: data.debug?.sourceScriptId ?? null,
+      }}
+    />
+  </div>
+) : null}
         </section>
       </div>
     </main>

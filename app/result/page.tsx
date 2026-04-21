@@ -50,7 +50,7 @@ export default async function ResultPage({ searchParams }: PageProps) {
 
         {(vm.outputTier === "degraded" || vm.outputTier === "minimal") && (
           <div className="mb-6">
-            <StateMessage outputTier={vm.outputTier} />
+            <StateMessage mode={vm.mode} outputTier={vm.outputTier} />
           </div>
         )}
 

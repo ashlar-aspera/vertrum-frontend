@@ -20,40 +20,40 @@ export function normalizeGating(
   const usageDefaults = getPlanUsageDefaults(planType);
   const usage = asObject(gating.usage);
 
-  return {
-    decision:
-      gating.decision === "warn" || gating.decision === "block"
-        ? gating.decision
-        : "allow",
-    plan_type: planType,
-    usage_type:
-      gating.usage_type === "full_query" || gating.usage_type === "light_search"
-        ? gating.usage_type
-        : mode === "default"
-          ? "full_query"
-          : "light_search",
-    warning_code: asNullableString(gating.warning_code),
-    limit_type: asNullableString(gating.limit_type),
-    message: asNullableString(gating.message),
-    usage: {
-      searches_remaining: asNumber(
-        usage.searches_remaining,
-        usageDefaults.searches_remaining
-      ),
-      searches_limit: asNumber(
-        usage.searches_limit,
-        usageDefaults.searches_limit
-      ),
-      full_content_searches_remaining: asNumber(
-        usage.full_content_searches_remaining,
-        usageDefaults.full_content_searches_remaining
-      ),
-      full_content_searches_limit: asNumber(
-        usage.full_content_searches_limit,
-        usageDefaults.full_content_searches_limit
-      ),
-    },
-  };
+return {
+  decision:
+    gating.decision === "warn" || gating.decision === "block"
+      ? gating.decision
+      : "allow",
+  plan_type: planType,
+  usage_type:
+    gating.usage_type === "full_query" || gating.usage_type === "light_search"
+      ? gating.usage_type
+      : mode === "default"
+        ? "full_query"
+        : "light_search",
+  warning_code: gating.warning_code ?? undefined,
+  limit_type: gating.limit_type ?? undefined,
+  message: gating.message ?? undefined,
+  usage: {
+    searches_remaining: asNumber(
+      usage.searches_remaining,
+      usageDefaults.searches_remaining
+    ),
+    searches_limit: asNumber(
+      usage.searches_limit,
+      usageDefaults.searches_limit
+    ),
+    full_content_searches_remaining: asNumber(
+      usage.full_content_searches_remaining,
+      usageDefaults.full_content_searches_remaining
+    ),
+    full_content_searches_limit: asNumber(
+      usage.full_content_searches_limit,
+      usageDefaults.full_content_searches_limit
+    ),
+  },
+};
 }
 
 export type DashboardNormalizedResponse = {
