@@ -3,8 +3,6 @@ import LoadingState from "@/components/LoadingState";
 export default function Loading() {
   return <LoadingState />;
 }
-export default function Loading() {
-  return (
     <main className="min-h-screen bg-slate-50 px-6 py-8">
       <div className="mx-auto flex min-h-[70vh] max-w-7xl items-center justify-center">
         <div className="rounded-3xl border border-slate-200 bg-white px-10 py-12 text-center shadow-sm">
