@@ -187,13 +187,17 @@ async function getDashboardResponse(
     ts: Date.now().toString(),
   });
 
-  const res = await fetch(
-    `http://localhost:3001/api/dashboard?${params.toString()}`,
-    {
-      cache: "no-store",
-      next: { revalidate: 0 },
-    }
-  );
+  const baseUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:3001";
+
+const res = await fetch(
+  `${baseUrl}/api/dashboard?${params.toString()}`,
+  {
+    cache: "no-store",
+    next: { revalidate: 0 },
+  }
+);
 
   if (!res.ok) {
     throw new Error(`Failed to load dashboard response: ${res.status}`);
