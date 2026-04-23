@@ -152,29 +152,6 @@ export async function GET(request: NextRequest) {
         fallbackPlanType
       );
 
-      return NextResponse.json(normalized);
-    }
-
-          const upstreamRes = await fetch(upstream.toString(), {
-        method: "GET",
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (!upstreamRes.ok) {
-        throw new Error(`Upstream returned ${upstreamRes.status}`);
-      }
-
-      const upstreamJson = await upstreamRes.json();
-      const normalized = normalizeUpstreamResponse(
-        upstreamJson,
-        query,
-        mode,
-        fallbackPlanType
-      );
-
       return NextResponse.json({
         ...normalized,
 
