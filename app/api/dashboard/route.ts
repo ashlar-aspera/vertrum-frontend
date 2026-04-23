@@ -155,6 +155,42 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(normalized);
     }
 
+          const upstreamRes = await fetch(upstream.toString(), {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!upstreamRes.ok) {
+        throw new Error(`Upstream returned ${upstreamRes.status}`);
+      }
+
+      const upstreamJson = await upstreamRes.json();
+      const normalized = normalizeUpstreamResponse(
+        upstreamJson,
+        query,
+        mode,
+        fallbackPlanType
+      );
+
+      return NextResponse.json({
+        ...normalized,
+
+        // TEMP DEBUG AUDIT BLOCK
+        // REMOVE AFTER DESKTOP VS MOBILE CONSISTENCY ISSUE IS RESOLVED
+        debug_audit: {
+          received_query: query,
+          received_requested_output: mode,
+          received_state: state,
+          received_user_id: userId,
+          timestamp: new Date().toISOString(),
+          raw_n8n_response: upstreamJson,
+        },
+      });
+    }
+
     const selectedMock = getMockResponse(query, state);
     const normalized = normalizeMockResponseByMode(
       selectedMock,
