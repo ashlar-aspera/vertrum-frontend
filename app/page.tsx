@@ -187,9 +187,8 @@ async function getDashboardResponse(
     ts: Date.now().toString(),
   });
 
-  const baseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3001";
+  const baseUrl =
+  process.env.DASHBOARD_PAGE_BASE_URL || "http://localhost:3001";
 
 const res = await fetch(
   `${baseUrl}/api/dashboard?${params.toString()}`,
