@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  try {
+    try {
     if (liveUrl) {
       const upstream = new URL(liveUrl);
 
@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("dashboard route error:", error);
 
-    return NextResponse.json(
+        return NextResponse.json(
       buildErrorResponse(mode, query, { route_error: true }, fallbackPlanType),
       { status: 200 }
     );
