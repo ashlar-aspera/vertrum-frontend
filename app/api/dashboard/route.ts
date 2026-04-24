@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-    try {
+      try {
     if (liveUrl) {
       const upstream = new URL(liveUrl);
 
@@ -152,20 +152,7 @@ export async function GET(request: NextRequest) {
         fallbackPlanType
       );
 
-      return NextResponse.json({
-        ...normalized,
-
-        // TEMP DEBUG AUDIT BLOCK
-        // REMOVE AFTER DESKTOP VS MOBILE CONSISTENCY ISSUE IS RESOLVED
-        debug_audit: {
-          received_query: query,
-          received_requested_output: mode,
-          received_state: state,
-          received_user_id: userId,
-          timestamp: new Date().toISOString(),
-          raw_n8n_response: upstreamJson,
-        },
-      });
+      return NextResponse.json(normalized);
     }
 
     const selectedMock = getMockResponse(query, state);
@@ -180,7 +167,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("dashboard route error:", error);
 
-        return NextResponse.json(
+    return NextResponse.json(
       buildErrorResponse(mode, query, { route_error: true }, fallbackPlanType),
       { status: 200 }
     );

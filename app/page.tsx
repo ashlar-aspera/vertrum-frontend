@@ -488,7 +488,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
           ) : null}
 
-                          {!isBlocked ? (
+                           {!isBlocked ? (
             <div className="mt-6">
               <DebugDrawer
                 debug={{
@@ -504,19 +504,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   sourceScriptId: data.debug?.sourceScriptId ?? null,
                 }}
               />
-            </div>
-          ) : null}
-
-          {/* TEMP DEBUG: Raw API response rendering for cross-device audit */}
-          {/* REMOVE AFTER CONSISTENCY ISSUE IS RESOLVED */}
-          {!isBlocked ? (
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                Raw API Response
-              </div>
-              <pre className="overflow-x-auto whitespace-pre-wrap text-[10px] leading-4 text-slate-700">
-                {JSON.stringify(data, null, 2)}
-              </pre>
             </div>
           ) : null}
         </section>
