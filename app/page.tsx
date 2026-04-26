@@ -8,6 +8,7 @@ import ResultStatusStrip from "@/components/ResultStatusStrip";
 import StateMessage from "@/components/StateMessage";
 import StrengthCard from "@/components/StrengthCard";
 import UsageBanner from "@/components/UsageBanner";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -187,11 +188,20 @@ async function getDashboardResponse(
     ts: Date.now().toString(),
   });
 
-const res = await fetch(`/api/dashboard?${params.toString()}`, {
+const headersList = await headers();
+const host = headersList.get("host");
+
+if (!host) {
+  throw new Error("Missing request host for dashboard API call");
+}
+
+const protocol = headersList.get("x-forwarded-proto") || "https";
+const origin = `${protocol}://${host}`;
+
+const res = await fetch(`${origin}/api/dashboard?${params.toString()}`, {
   cache: "no-store",
   next: { revalidate: 0 },
 });
-
   if (!res.ok) {
     throw new Error(`Failed to load dashboard response: ${res.status}`);
   }
