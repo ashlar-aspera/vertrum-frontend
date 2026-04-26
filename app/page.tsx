@@ -449,39 +449,50 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   />
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-                  <div>
-                    {data.primaryPlay ? (
-                      <PrimaryPlayCard primaryPlay={data.primaryPlay} />
-                    ) : (
-                      <EmptyPrimaryState />
-                    )}
-                  </div>
+                <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+  {/* LEFT: PRIMARY PLAY */}
+  <div className="space-y-6">
+    {data.primaryPlay ? (
+      <PrimaryPlayCard primaryPlay={data.primaryPlay} />
+    ) : (
+      <EmptyPrimaryState />
+    )}
+  </div>
 
-                  <div className="space-y-4">
-                    <div className="text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
-                      Alternate Directions
-                    </div>
+  {/* RIGHT: AI + BACKUPS */}
+  <div className="space-y-6">
+    {/* AI READY (ELEVATED) */}
+    {data.primaryPlay?.llmReadyContext ? (
+      <ReadyToUseAiPromptSection
+        llmReadyContext={data.primaryPlay.llmReadyContext}
+      />
+    ) : null}
 
-                    {data.backupPlays.length ? (
-                      data.backupPlays.map((play, index) => (
-                        <BackupPlayCard key={index} play={play} />
-                      ))
-                    ) : (
-                      <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
-                        No alternate directions available for this result.
-                      </div>
-                    )}
-                  </div>
-                </div>
+    {/* BACKUPS */}
+    <div>
+      <div className="mb-3 text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
+        Alternate Directions
+      </div>
 
-                {data.primaryPlay?.llmReadyContext ? (
-                  <div className="mt-6">
-                    <ReadyToUseAiPromptSection
-                      llmReadyContext={data.primaryPlay.llmReadyContext}
-                    />
-                  </div>
-                ) : null}
+      {data.backupPlays.length ? (
+        <div className="space-y-4">
+          {data.backupPlays.map((play, index) => (
+            <BackupPlayCard key={index} play={play} />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
+          No alternate directions available for this result.
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+{/* IDEA BANK FULL WIDTH */}
+<div className="mt-6">
+  <IdeaBankSection ideas={data.ideaBank} />
+</div>
 
                 <div className="mt-6">
                   <IdeaBankSection ideas={data.ideaBank} />
