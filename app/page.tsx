@@ -188,32 +188,33 @@ async function getDashboardResponse(
     ts: Date.now().toString(),
   });
 
-const headersList = await headers();
-const host = headersList.get("host");
+  const headersList = await headers();
+  const host = headersList.get("host");
 
-if (!host) {
-  throw new Error("Missing request host for dashboard API call");
+  if (!host) {
+    throw new Error("Missing request host for dashboard API call");
+  }
+
+  const protocol = headersList.get("x-forwarded-proto") || "https";
+  const origin = `${protocol}://${host}`;
+  const cookie = headersList.get("cookie");
+
+  const res = await fetch(`${origin}/api/dashboard?${params.toString()}`, {
+    cache: "no-store",
+    next: { revalidate: 0 },
+    headers: cookie
+      ? {
+          cookie,
+        }
+      : undefined,
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to load dashboard response: ${res.status}`);
+  }
+
+  return res.json();
 }
-
-const protocol = headersList.get("x-forwarded-proto") || "https";
-const origin = `${protocol}://${host}`;
-const cookie = headersList.get("cookie");
-
-const res = await fetch(`${origin}/api/dashboard?${params.toString()}`, {
-  cache: "no-store",
-  next: { revalidate: 0 },
-  headers: cookie
-    ? {
-        cookie,
-      }
-    : undefined,
-});
-
-if (!res.ok) {
-  throw new Error(`Failed to load dashboard response: ${res.status}`);
-}
-
-return res.json();
 function HooksSection({
   hooks,
 }: {
