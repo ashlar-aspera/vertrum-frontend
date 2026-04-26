@@ -59,6 +59,7 @@ export default function ResultSearchBar({
 
     params.set("state", defaultState || "strong");
     params.set("output", selectedMode);
+params.set("_request", Date.now().toString());
 
     setHasSubmitted(true);
 
