@@ -33,6 +33,7 @@ export default function ResultSearchBar({
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  const searchKey = searchParams.toString();
   const isSearching = hasSubmitted || isPending;
 
   useEffect(() => {
@@ -44,6 +45,10 @@ export default function ResultSearchBar({
     setSelectedMode(defaultOutput);
     setHasSubmitted(false);
   }, [defaultOutput]);
+
+  useEffect(() => {
+    setHasSubmitted(false);
+  }, [searchKey]);
 
   function submitSearch() {
     if (isSearching) return;
@@ -59,7 +64,7 @@ export default function ResultSearchBar({
 
     params.set("state", defaultState || "strong");
     params.set("output", selectedMode);
-params.set("_request", Date.now().toString());
+    params.set("_request", Date.now().toString());
 
     setHasSubmitted(true);
 
