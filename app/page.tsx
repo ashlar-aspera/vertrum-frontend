@@ -187,16 +187,10 @@ async function getDashboardResponse(
     ts: Date.now().toString(),
   });
 
-  const baseUrl =
-  process.env.DASHBOARD_PAGE_BASE_URL || "http://localhost:3001";
-
-const res = await fetch(
-  `${baseUrl}/api/dashboard?${params.toString()}`,
-  {
-    cache: "no-store",
-    next: { revalidate: 0 },
-  }
-);
+const res = await fetch(`/api/dashboard?${params.toString()}`, {
+  cache: "no-store",
+  next: { revalidate: 0 },
+});
 
   if (!res.ok) {
     throw new Error(`Failed to load dashboard response: ${res.status}`);
