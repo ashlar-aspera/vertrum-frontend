@@ -42,3 +42,5 @@ force redeploy after env fix
 preview env isolation test
 
 restore staging webhook
+
+redeploy after env scope change
