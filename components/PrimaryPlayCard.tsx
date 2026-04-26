@@ -36,7 +36,7 @@ export default function PrimaryPlayCard({ primaryPlay }: Props) {
           Primary Play
         </div>
 
-        <h2 className="text-2xl font-semibold leading-tight text-white sm:text-3xl">
+        <h2 className="text-3xl font-semibold leading-tight text-white sm:text-4xl">
           {primaryPlay.title}
         </h2>
       </div>
@@ -48,7 +48,7 @@ export default function PrimaryPlayCard({ primaryPlay }: Props) {
             Hook
           </div>
 
-          <p className="text-lg font-medium leading-relaxed text-slate-100 sm:text-xl">
+          <p className="text-xl font-medium leading-relaxed text-slate-100 sm:text-2xl">
             {primaryPlay.hook}
           </p>
         </div>
@@ -61,7 +61,7 @@ export default function PrimaryPlayCard({ primaryPlay }: Props) {
         </div>
 
         {scriptLines.length ? (
-          <div className="space-y-3 text-sm leading-7 text-slate-200 sm:text-base">
+          <div className="space-y-4 text-base leading-8 text-slate-200 sm:text-lg">
             {scriptLines.map((line, index) => (
               <p key={index}>{line}</p>
             ))}
