@@ -48,7 +48,7 @@ type LlmReadyContext = {
 };
 
 type Props = {
-  llmReadyContext: LlmReadyContext;
+  llmReadyContext?: LlmReadyContext | null;
 };
 
 function hasValue(value?: string | null) {
@@ -61,7 +61,7 @@ function nonEmptyList(values?: Array<string | null | undefined>) {
     : [];
 }
 
-function buildPromptText(context: LlmReadyContext) {
+function buildPromptText(context: Partial<LlmReadyContext> = {}) {
   const lines: string[] = [];
   const platform = context.targetPlatform || "the target platform";
 
@@ -249,11 +249,13 @@ function SmallMeta({
 export default function ReadyToUseAiPromptSection({
   llmReadyContext,
 }: Props) {
+  const safeContext = llmReadyContext ?? {};
+
   const [copied, setCopied] = useState(false);
 
   const promptText = useMemo(
-    () => buildPromptText(llmReadyContext),
-    [llmReadyContext]
+    () => buildPromptText(safeContext),
+    [safeContext]
   );
 
   async function handleCopy() {
@@ -266,16 +268,16 @@ export default function ReadyToUseAiPromptSection({
     }
   }
 
-  const scriptStructure = Array.isArray(llmReadyContext.script?.structure)
-    ? llmReadyContext.script!.structure!.filter(
-        (item) => hasValue(item.section) || hasValue(item.instruction)
-      )
-    : [];
+ const scriptStructure = Array.isArray(safeContext.script?.structure)
+  ? safeContext.script.structure.filter(
+      (item) => hasValue(item.section) || hasValue(item.instruction)
+    )
+  : [];
 
-  const sceneNotes = nonEmptyList(llmReadyContext.visualDirection?.sceneNotes);
-  const constraints = nonEmptyList(llmReadyContext.constraints);
-  const successCriteria = nonEmptyList(llmReadyContext.successCriteria);
-  const patternSignals = nonEmptyList(llmReadyContext.patternSignals);
+const sceneNotes = nonEmptyList(safeContext.visualDirection?.sceneNotes);
+const constraints = nonEmptyList(safeContext.constraints);
+const successCriteria = nonEmptyList(safeContext.successCriteria);
+const patternSignals = nonEmptyList(safeContext.patternSignals);
 
   return (
     <section className="w-full min-w-0 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -318,60 +320,60 @@ export default function ReadyToUseAiPromptSection({
       </div>
 
       <div className="grid min-w-0 gap-4">
-        {hasValue(llmReadyContext.creatorIntent) ? (
+        {hasValue(safeContext.creatorIntent) ? (
           <FieldCard title="Intent">
             <p className="text-sm leading-6 text-slate-800">
-              {llmReadyContext.creatorIntent}
+              {safeContext.creatorIntent}
             </p>
           </FieldCard>
         ) : null}
 
-        {hasValue(llmReadyContext.contentGoal) ? (
+        {hasValue(safeContext.contentGoal) ? (
           <FieldCard title="Content Goal">
             <p className="text-sm leading-6 text-slate-800">
-              {llmReadyContext.contentGoal}
+              {safeContext.contentGoal}
             </p>
           </FieldCard>
         ) : null}
 
-        {llmReadyContext.format &&
-        (hasValue(llmReadyContext.format.type) ||
-          hasValue(llmReadyContext.format.durationSeconds) ||
-          hasValue(llmReadyContext.format.aspectRatio)) ? (
+        {safeContext.format &&
+        (hasValue(safeContext.format.type) ||
+          hasValue(safeContext.format.durationSeconds) ||
+          hasValue(safeContext.format.aspectRatio)) ? (
           <FieldCard title="Format">
             <div className="grid gap-3 sm:grid-cols-3">
-              <SmallMeta label="Type" value={llmReadyContext.format.type} />
+              <SmallMeta label="Type" value={safeContext.format.type} />
               <SmallMeta
                 label="Duration"
                 value={
-                  llmReadyContext.format.durationSeconds
-                    ? `${llmReadyContext.format.durationSeconds} seconds`
+                  safeContext.format.durationSeconds
+                    ? `${safeContext.format.durationSeconds} seconds`
                     : null
                 }
               />
               <SmallMeta
                 label="Aspect Ratio"
-                value={llmReadyContext.format.aspectRatio}
+                value={safeContext.format.aspectRatio}
               />
             </div>
           </FieldCard>
         ) : null}
 
-        {llmReadyContext.hook &&
-        (hasValue(llmReadyContext.hook.text) ||
-          hasValue(llmReadyContext.hook.delivery)) ? (
+        {safeContext.hook &&
+        (hasValue(safeContext.hook.text) ||
+          hasValue(safeContext.hook.delivery)) ? (
           <FieldCard title="Hook">
             <div className="space-y-3">
-              {hasValue(llmReadyContext.hook.text) ? (
+              {hasValue(safeContext.hook.text) ? (
                 <p className="break-words text-base font-medium leading-7 text-slate-950">
-                  {llmReadyContext.hook.text}
+                  {safeContext.hook.text}
                 </p>
               ) : null}
 
-              {hasValue(llmReadyContext.hook.delivery) ? (
+              {hasValue(safeContext.hook.delivery) ? (
                 <p className="break-words text-sm leading-6 text-slate-600">
                   <span className="font-medium text-slate-800">Delivery:</span>{" "}
-                  {llmReadyContext.hook.delivery}
+                  {safeContext.hook.delivery}
                 </p>
               ) : null}
             </div>
@@ -399,32 +401,32 @@ export default function ReadyToUseAiPromptSection({
           </FieldCard>
         ) : null}
 
-        {hasValue(llmReadyContext.script?.fullText) ? (
+        {hasValue(safeContext.script?.fullText) ? (
           <FieldCard title="Full Script">
             <div className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-800">
-              {llmReadyContext.script?.fullText}
+              {safeContext.script?.fullText}
             </div>
           </FieldCard>
         ) : null}
 
-        {llmReadyContext.visualDirection &&
-        (hasValue(llmReadyContext.visualDirection.style) ||
-          hasValue(llmReadyContext.visualDirection.pacing) ||
-          hasValue(llmReadyContext.visualDirection.camera) ||
+        {safeContext.visualDirection &&
+        (hasValue(safeContext.visualDirection.style) ||
+          hasValue(safeContext.visualDirection.pacing) ||
+          hasValue(safeContext.visualDirection.camera) ||
           sceneNotes.length) ? (
           <FieldCard title="Visual Direction">
             <div className="grid gap-3 sm:grid-cols-3">
               <SmallMeta
                 label="Style"
-                value={llmReadyContext.visualDirection.style}
+                value={safeContext.visualDirection.style}
               />
               <SmallMeta
                 label="Pacing"
-                value={llmReadyContext.visualDirection.pacing}
+                value={safeContext.visualDirection.pacing}
               />
               <SmallMeta
                 label="Camera"
-                value={llmReadyContext.visualDirection.camera}
+                value={safeContext.visualDirection.camera}
               />
             </div>
 
@@ -446,17 +448,17 @@ export default function ReadyToUseAiPromptSection({
           </FieldCard>
         ) : null}
 
-        {llmReadyContext.tone &&
-        (hasValue(llmReadyContext.tone.voice) ||
-          hasValue(llmReadyContext.tone.energy) ||
-          hasValue(llmReadyContext.tone.deliveryStyle)) ? (
+        {safeContext.tone &&
+        (hasValue(safeContext.tone.voice) ||
+          hasValue(safeContext.tone.energy) ||
+          hasValue(safeContext.tone.deliveryStyle)) ? (
           <FieldCard title="Tone">
             <div className="grid gap-3 sm:grid-cols-3">
-              <SmallMeta label="Voice" value={llmReadyContext.tone.voice} />
-              <SmallMeta label="Energy" value={llmReadyContext.tone.energy} />
+              <SmallMeta label="Voice" value={safeContext.tone.voice} />
+              <SmallMeta label="Energy" value={safeContext.tone.energy} />
               <SmallMeta
                 label="Delivery Style"
-                value={llmReadyContext.tone.deliveryStyle}
+                value={safeContext.tone.deliveryStyle}
               />
             </div>
           </FieldCard>
