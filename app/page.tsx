@@ -402,11 +402,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
         </section>
 
-        {!data ? (
-          <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
-            Enter a topic to get started.
-          </section>
-        ) : (
+        {!activeQuery ? (
+  <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
+    Enter a topic to get started.
+  </section>
+) : !data ? (
+  <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
+    Building your Vertrum result...
+  </section>
+) : (
           <section className="min-w-0">
             <div className="mb-6 space-y-4">
               <ResultStatusStrip
