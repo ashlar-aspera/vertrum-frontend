@@ -366,18 +366,22 @@ function EmptyPrimaryState() {
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const state = params.state === "degraded" ? "degraded" : "strong";
-  const activeQuery = (params.q || "").trim() || "motivation";
+  const activeQuery = (params.q || "").trim();
   const output = normalizeRequestedOutput(params.output);
 
-  const data = await getDashboardResponse(activeQuery, state, output);
+  const data = activeQuery
+    ? await getDashboardResponse(activeQuery, state, output)
+    : null;
 
-  const isBlocked = data.gating?.decision === "block";
+  const isBlocked = data?.gating?.decision === "block";
+
   const showStateMessage =
+    !!data &&
     !isBlocked &&
     (data.outputTier === "degraded" || data.outputTier === "minimal");
 
   const primaryRankScore =
-    typeof data.debug?.primaryRankScore === "number"
+    typeof data?.debug?.primaryRankScore === "number"
       ? Math.min(data.debug.primaryRankScore / 100, 1)
       : 0;
 
@@ -411,112 +415,118 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         <div className="my-6 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
-        <section>
-          <ResultStatusStrip
-            freshnessLabel={data.trustStatus?.freshnessLabel}
-            analyzedAgoLabel={data.trustStatus?.analyzedAgoLabel}
-            platformLabel={data.trustStatus?.platformLabel}
-            chainLabel={data.trustStatus?.chainLabel}
-          />
+        {!data ? (
+          <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
+            Enter a topic to get started.
+          </section>
+        ) : (
+          <section>
+            <ResultStatusStrip
+              freshnessLabel={data.trustStatus?.freshnessLabel}
+              analyzedAgoLabel={data.trustStatus?.analyzedAgoLabel}
+              platformLabel={data.trustStatus?.platformLabel}
+              chainLabel={data.trustStatus?.chainLabel}
+            />
 
-          <UsageBanner gating={data.gating} mode={output} />
+            <UsageBanner gating={data.gating} mode={output} />
 
-          {showStateMessage ? (
-            <div className="mb-6">
-              <StateMessage outputTier={data.outputTier} mode={output} />
-            </div>
-          ) : null}
-
-          {isBlocked ? (
-            <BlockedState mode={output} message={data.gating?.message} />
-          ) : null}
-
-          {!isBlocked && output === "default" ? (
-            <>
-              <div className="mb-4 mt-1">
-                <StrengthCard
-                  score={primaryRankScore}
-                  chainType={data.debug?.primaryChainType ?? "—"}
-                />
+            {showStateMessage ? (
+              <div className="mb-6">
+                <StateMessage outputTier={data.outputTier} mode={output} />
               </div>
+            ) : null}
 
-              <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-                <div>
-                  {data.primaryPlay ? (
-                    <PrimaryPlayCard primaryPlay={data.primaryPlay} />
-                  ) : (
-                    <EmptyPrimaryState />
-                  )}
-                </div>
+            {isBlocked ? (
+              <BlockedState mode={output} message={data.gating?.message} />
+            ) : null}
 
-                <div className="space-y-4">
-                  <div className="text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
-                    Alternate Directions
-                  </div>
-
-                  {data.backupPlays.length ? (
-                    data.backupPlays.map((play, index) => (
-                      <BackupPlayCard key={index} play={play} />
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
-                      No alternate directions available for this result.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {data.primaryPlay?.llmReadyContext ? (
-                <div className="mt-6">
-                  <ReadyToUseAiPromptSection
-                    llmReadyContext={data.primaryPlay.llmReadyContext}
+            {!isBlocked && output === "default" ? (
+              <>
+                <div className="mb-4 mt-1">
+                  <StrengthCard
+                    score={primaryRankScore}
+                    chainType={data.debug?.primaryChainType ?? "—"}
                   />
                 </div>
-              ) : null}
 
-              <div className="mt-6">
+                <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+                  <div>
+                    {data.primaryPlay ? (
+                      <PrimaryPlayCard primaryPlay={data.primaryPlay} />
+                    ) : (
+                      <EmptyPrimaryState />
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
+                      Alternate Directions
+                    </div>
+
+                    {data.backupPlays.length ? (
+                      data.backupPlays.map((play, index) => (
+                        <BackupPlayCard key={index} play={play} />
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
+                        No alternate directions available for this result.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {data.primaryPlay?.llmReadyContext ? (
+                  <div className="mt-6">
+                    <ReadyToUseAiPromptSection
+                      llmReadyContext={data.primaryPlay.llmReadyContext}
+                    />
+                  </div>
+                ) : null}
+
+                <div className="mt-6">
+                  <IdeaBankSection ideas={data.ideaBank} />
+                </div>
+              </>
+            ) : null}
+
+            {!isBlocked && output === "hooks" ? (
+              <div className="mt-4">
+                <HooksSection hooks={data.hooks} />
+              </div>
+            ) : null}
+
+            {!isBlocked && output === "scripts" ? (
+              <div className="mt-4">
+                <ScriptsSection scripts={data.scripts} />
+              </div>
+            ) : null}
+
+            {!isBlocked && output === "ideas" ? (
+              <div className="mt-4">
                 <IdeaBankSection ideas={data.ideaBank} />
               </div>
-            </>
-          ) : null}
+            ) : null}
 
-          {!isBlocked && output === "hooks" ? (
-            <div className="mt-4">
-              <HooksSection hooks={data.hooks} />
-            </div>
-          ) : null}
-
-          {!isBlocked && output === "scripts" ? (
-            <div className="mt-4">
-              <ScriptsSection scripts={data.scripts} />
-            </div>
-          ) : null}
-
-          {!isBlocked && output === "ideas" ? (
-            <div className="mt-4">
-              <IdeaBankSection ideas={data.ideaBank} />
-            </div>
-          ) : null}
-
-                           {!isBlocked ? (
-            <div className="mt-6">
-              <DebugDrawer
-                debug={{
-                  candidateCount: data.debug?.candidateCount ?? 0,
-                  validCandidateCount: data.debug?.validCandidateCount ?? 0,
-                  rankedCandidateCount: data.debug?.rankedCandidateCount ?? 0,
-                  primaryRankScore: data.debug?.primaryRankScore ?? null,
-                  primaryChainType: data.debug?.primaryChainType ?? null,
-                  flags: data.debug?.flags ?? {},
-                  rankingVisibility: data.debug?.rankingVisibility ?? {},
-                  sourceInsightId: data.debug?.sourceInsightId ?? null,
-                  sourceHookId: data.debug?.sourceHookId ?? null,
-                  sourceScriptId: data.debug?.sourceScriptId ?? null,
-                }}
-              />
-            </div>
-          ) : null}
-        </section>
+            {!isBlocked ? (
+              <div className="mt-6">
+                <DebugDrawer
+                  debug={{
+                    candidateCount: data.debug?.candidateCount ?? 0,
+                    validCandidateCount: data.debug?.validCandidateCount ?? 0,
+                    rankedCandidateCount: data.debug?.rankedCandidateCount ?? 0,
+                    primaryRankScore: data.debug?.primaryRankScore ?? null,
+                    primaryChainType: data.debug?.primaryChainType ?? null,
+                    flags: data.debug?.flags ?? {},
+                    rankingVisibility: data.debug?.rankingVisibility ?? {},
+                    sourceInsightId: data.debug?.sourceInsightId ?? null,
+                    sourceHookId: data.debug?.sourceHookId ?? null,
+                    sourceScriptId: data.debug?.sourceScriptId ?? null,
+                  }}
+                />
+              </div>
+            ) : null}
+          </section>
+        )}
       </div>
     </main>
   );
