@@ -134,12 +134,7 @@ export default function ResultSearchBar({
             </button>
           </div>
 
-          {isSearching ? (
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Building your result. Analyzing patterns, preparing execution
-              paths, and assembling your content direction.
-            </div>
-          ) : null}
+          
         </div>
       </div>
 

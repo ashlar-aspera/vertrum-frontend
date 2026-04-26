@@ -11,6 +11,12 @@ type IdeaBankSectionProps = {
   title?: string;
 };
 
+function cleanString(value?: string | null) {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
+}
+
 function normalizeIdea(idea: IdeaItem | string, index: number): IdeaItem {
   if (typeof idea === "string") {
     const value = idea.trim();
@@ -25,32 +31,25 @@ function normalizeIdea(idea: IdeaItem | string, index: number): IdeaItem {
   }
 
   const label =
-    typeof idea.label === "string" && idea.label.trim()
-      ? idea.label.trim()
-      : typeof idea.text === "string" && idea.text.trim()
-        ? idea.text.trim()
-        : "Untitled idea";
+    cleanString(idea.label) ?? cleanString(idea.text) ?? "Untitled idea";
 
-  const text =
-    typeof idea.text === "string" && idea.text.trim()
-      ? idea.text.trim()
-      : typeof idea.label === "string" && idea.label.trim()
-        ? idea.label.trim()
-        : "";
+  const text = cleanString(idea.text) ?? cleanString(idea.label) ?? "";
 
   return {
     id: idea.id ?? `idea-${index + 1}`,
     label,
     text,
-    type:
-      typeof idea.type === "string" && idea.type.trim()
-        ? idea.type.trim()
-        : null,
-    angle:
-      typeof idea.angle === "string" && idea.angle.trim()
-        ? idea.angle.trim()
-        : null,
+    type: cleanString(idea.type),
+    angle: cleanString(idea.angle),
   };
+}
+
+function hasValue(value?: string | null) {
+  return cleanString(value) !== null;
+}
+
+function formatTag(value: string) {
+  return value.replace(/_/g, " ");
 }
 
 export default function IdeaBankSection({
@@ -60,61 +59,75 @@ export default function IdeaBankSection({
   const normalizedIdeas = Array.isArray(ideas)
     ? ideas
         .map(normalizeIdea)
-        .filter((idea) => (idea.label || idea.text).trim().length > 0)
+        .filter((idea) => hasValue(idea.label) || hasValue(idea.text))
     : [];
 
   if (!normalizedIdeas.length) return null;
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-5 text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
-        {title}
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
+            {title}
+          </div>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Additional content angles generated from the same search context.
+          </p>
+        </div>
+
+        <div className="text-xs text-slate-400">
+          {normalizedIdeas.length} saved-ready ideas
+        </div>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         {normalizedIdeas.map((idea, index) => {
           const primaryText = idea.label || idea.text;
+
           const showSecondaryText =
-            idea.label.trim() &&
-            idea.text.trim() &&
+            hasValue(idea.label) &&
+            hasValue(idea.text) &&
             idea.label.trim() !== idea.text.trim();
 
-          const showTypeTag =
-            typeof idea.type === "string" &&
-            idea.type.trim().length > 0 &&
-            idea.type.trim().toLowerCase() !== "idea";
-
-          const showAngleTag =
-            typeof idea.angle === "string" && idea.angle.trim().length > 0;
+          const tags = [idea.type, idea.angle]
+            .filter((value): value is string => hasValue(value))
+            .filter((value) => value.trim().toLowerCase() !== "idea");
 
           return (
             <article
               key={idea.id ?? `idea-${index}`}
-              className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+              className="group rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-300 hover:bg-white hover:shadow-sm"
             >
-              <div className="text-base font-medium leading-6 text-slate-900">
-                {primaryText}
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="break-words text-base font-semibold leading-6 text-slate-950">
+                    {primaryText}
+                  </div>
+
+                  {showSecondaryText ? (
+                    <div className="mt-2 break-words text-sm leading-6 text-slate-600">
+                      {idea.text}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600">
+                  →
+                </div>
               </div>
 
-              {showSecondaryText ? (
-                <div className="mt-2 text-sm leading-6 text-slate-600">
-                  {idea.text}
-                </div>
-              ) : null}
-
-              {(showTypeTag || showAngleTag) ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {showTypeTag ? (
-                    <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700">
-                      {idea.type}
+              {tags.length ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {tags.map((tag, tagIndex) => (
+                    <span
+                      key={`${tag}-${tagIndex}`}
+                      className="inline-flex max-w-full rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium capitalize text-slate-700"
+                    >
+                      <span className="truncate">{formatTag(tag)}</span>
                     </span>
-                  ) : null}
-
-                  {showAngleTag ? (
-                    <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700">
-                      {idea.angle}
-                    </span>
-                  ) : null}
+                  ))}
                 </div>
               ) : null}
             </article>
