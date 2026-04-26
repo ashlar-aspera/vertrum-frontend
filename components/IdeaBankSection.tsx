@@ -112,10 +112,6 @@ export default function IdeaBankSection({
                     </div>
                   ) : null}
                 </div>
-
-                <div className="shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-600">
-                  →
-                </div>
               </div>
 
               {tags.length ? (
