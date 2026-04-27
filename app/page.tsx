@@ -379,23 +379,21 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <div className="mx-auto w-full max-w-7xl">
         <section className="mb-10">
   <header className="mb-10 flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      <img
-        src="/brand/vertrum-logo-full.svg"
-        alt="Vertrum"
-        className="h-9 w-auto"
-      />
-    </div>
+  <div className="flex h-10 items-center">
+    <img
+      src="/brand/vertrum-logo-full.svg"
+      alt="Vertrum"
+      className="h-8 w-auto"
+    />
+  </div>
 
-    <div className="flex items-center gap-3">
-      <button
-        type="button"
-        className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-      >
-        Sign in
-      </button>
-    </div>
-  </header>
+  <button
+    type="button"
+    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+  >
+    Sign in
+  </button>
+</header>
 
   <div className="mb-7">
     <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] text-slate-950 md:text-5xl">
