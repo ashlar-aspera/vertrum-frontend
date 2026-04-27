@@ -381,7 +381,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   <header className="mb-10 flex items-center justify-between">
   <div className="flex h-10 items-center">
     <img
-      src="/brand/vertrum-logo-full.svg"
+      src="/brand/vertrum-logo.svg"
       alt="Vertrum"
       className="h-8 w-auto"
     />
