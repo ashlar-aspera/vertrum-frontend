@@ -92,7 +92,15 @@ export async function GET(request: NextRequest) {
 
   const state =
     searchParams.get("state") === "degraded" ? "degraded" : "strong";
-  const query = (searchParams.get("q") || "").trim() || "motivation";
+
+  const rawQuery = searchParams.get("q") || "";
+
+  const query =
+    rawQuery
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ") || "motivation";
+
   const mode = normalizeRequestedOutput(searchParams.get("output"));
   const ts = searchParams.get("ts");
 
@@ -115,11 +123,12 @@ export async function GET(request: NextRequest) {
     );
   }
 
-      try {
+  try {
     if (liveUrl) {
       const upstream = new URL(liveUrl);
 
       upstream.searchParams.set("q", query);
+      upstream.searchParams.set("raw_query", rawQuery);
       upstream.searchParams.set("state", state);
       upstream.searchParams.set("output", mode);
       upstream.searchParams.set("requested_output", mode);
