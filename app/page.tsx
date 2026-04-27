@@ -377,30 +377,45 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:py-10">
       <div className="mx-auto w-full max-w-7xl">
-        <section className="mb-8">
-          <div className="mb-6 text-center">
-            <div className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">
-              Vertrum
-            </div>
+        <section className="mb-10">
+  <header className="mb-10 flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <img
+        src="/brand/vertrum-logo-full.svg"
+        alt="Vertrum"
+        className="h-9 w-auto"
+      />
+    </div>
 
-            <h1 className="mb-3 text-3xl font-semibold leading-tight text-slate-950 md:text-4xl">
-              Know what to create next
-            </h1>
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+      >
+        Sign in
+      </button>
+    </div>
+  </header>
 
-            <p className="mx-auto max-w-2xl text-sm leading-6 text-slate-500 md:text-base">
-              Search a topic, choose an output mode, and inspect the strongest
-              returned direction in one flow.
-            </p>
-          </div>
+  <div className="mb-7">
+    <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] text-slate-950 md:text-5xl">
+      Know what to create next.
+    </h1>
 
-          <div className="mx-auto max-w-5xl">
-            <ResultSearchBar
-              defaultQuery={activeQuery}
-              defaultOutput={output}
-              defaultState={state}
-            />
-          </div>
-        </section>
+    <p className="mt-3 max-w-2xl text-base leading-7 text-slate-500">
+      Search a topic, choose an output mode, and turn real content signals into
+      film-ready and AI-ready direction.
+    </p>
+  </div>
+
+  <div className="max-w-5xl">
+    <ResultSearchBar
+      defaultQuery={activeQuery}
+      defaultOutput={output}
+      defaultState={state}
+    />
+  </div>
+</section>
 
         {!activeQuery ? (
   <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
