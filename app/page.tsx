@@ -90,12 +90,49 @@ type DashboardResponse = {
     };
   } | null;
 
-  trustStatus: {
+    trustStatus: {
     freshnessLabel: string;
     analyzedAgoLabel: string | null;
     platformLabel: string;
     chainLabel: string | null;
   };
+
+  directive?: {
+    title: string;
+    coreDecision: string;
+    whatToCreate: string;
+    hook: string;
+    script: string;
+    confidenceLabel: string | null;
+    readiness: string | null;
+    aiReadyOutput: {
+      displayLabel: string;
+      context: LlmReadyContext | null;
+    };
+  } | null;
+
+  supportingOptions?: {
+    alternateDirections: Array<{
+      title: string;
+      hook: string;
+      angle: string;
+      patternFamily: string | null;
+      patternInsight: string | null;
+    }>;
+    ideaBank: DashboardResponse["ideaBank"];
+  };
+
+  systemStatus?: {
+    outputTier: OutputTier;
+    warnings: string[];
+    counts: {
+      candidateCount: number;
+      validCandidateCount: number;
+      rankedCandidateCount: number;
+      backupPlayCount: number;
+      ideaBankCount: number;
+    };
+  } | null;
 
   primaryPlay: {
     title: string;
@@ -454,40 +491,47 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 </div>
 
                 <div className="grid min-w-0 gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start">
-                  <div className="min-w-0">
-                    {data.primaryPlay ? (
-                      <PrimaryPlayCard primaryPlay={data.primaryPlay} />
-                    ) : (
-                      <EmptyPrimaryState />
-                    )}
-                  </div>
+  <div className="min-w-0">
+    {data.primaryPlay ? (
+      <PrimaryPlayCard primaryPlay={data.primaryPlay} />
+    ) : (
+      <EmptyPrimaryState />
+    )}
+  </div>
 
-                  <aside className="min-w-0 space-y-6">
-                    {data.primaryPlay?.llmReadyContext ? (
-                      <ReadyToUseAiPromptSection
-                        llmReadyContext={data.primaryPlay.llmReadyContext}
-                      />
-                    ) : null}
+  <aside className="min-w-0 space-y-6">
+    {(
+      data.directive?.aiReadyOutput?.context ||
+      data.primaryPlay?.llmReadyContext
+    ) ? (
+      <ReadyToUseAiPromptSection
+        llmReadyContext={
+          data.directive?.aiReadyOutput?.context ??
+          data.primaryPlay?.llmReadyContext ??
+          null
+        }
+      />
+    ) : null}
 
-                    <section className="min-w-0">
-                      <div className="mb-3 text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
-                        Alternate Directions
-                      </div>
+    <section className="min-w-0">
+      <div className="mb-3 text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
+        Alternate Directions
+      </div>
 
-                      {data.backupPlays.length ? (
-                        <div className="space-y-4">
-                          {data.backupPlays.map((play, index) => (
-                            <BackupPlayCard key={index} play={play} />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
-                          No alternate directions available for this result.
-                        </div>
-                      )}
-                    </section>
-                  </aside>
-                </div>
+      {data.backupPlays.length ? (
+        <div className="space-y-4">
+          {data.backupPlays.map((play, index) => (
+            <BackupPlayCard key={index} play={play} />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
+          No alternate directions available for this result.
+        </div>
+      )}
+    </section>
+  </aside>
+</div>
 
                 <div className="mt-6">
                   <IdeaBankSection ideas={data.ideaBank} />

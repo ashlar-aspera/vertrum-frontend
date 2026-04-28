@@ -1,6 +1,9 @@
 import {
   AnyRecord,
+  DashboardDirective,
   DashboardNormalizedResponse,
+  DashboardSupportingOptions,
+  DashboardSystemStatus,
   LlmReadyContext,
   OutputTier,
   PlanType,
@@ -144,6 +147,168 @@ function normalizeLlmReadyContext(value: unknown): LlmReadyContext | null {
   };
 }
 
+function normalizeDirective(value: unknown): DashboardDirective | null {
+  const raw = asObject(value);
+  if (!Object.keys(raw).length) return null;
+
+  const queryContextRaw = asObject(raw.query_context);
+  const executionContextRaw = asObject(raw.execution_context);
+  const creativeConstraintsRaw = asObject(raw.creative_constraints);
+  const aiReadyOutputRaw = asObject(raw.ai_ready_output);
+  const contentComponentsRaw = asObject(raw.content_components);
+  const selectionMetadataRaw = asObject(raw.selection_metadata);
+  const sourceLineageRaw = asObject(raw.source_lineage);
+  const aiReadyContext = asObject(aiReadyOutputRaw.context);
+
+  return {
+    version: asString(raw.version, "directive_contract_v2"),
+    directiveId: asString(raw.directive_id, ""),
+    requestFingerprint: asString(raw.request_fingerprint, ""),
+    generatedAt: asNullableString(raw.generated_at),
+
+    directiveType: asString(raw.directive_type, "unknown"),
+    platform: asString(raw.platform, "tiktok"),
+
+    queryContext: {
+      queryTerm: asNullableString(queryContextRaw.query_term),
+      rawQuery: asNullableString(queryContextRaw.raw_query),
+      requestedOutput: asNullableString(queryContextRaw.requested_output),
+      audienceOrNiche: asNullableString(queryContextRaw.audience_or_niche),
+    },
+
+    title: asString(raw.title, "Recommended Content Direction"),
+    coreDecision: asString(raw.core_decision, ""),
+    whatToCreate: asString(raw.what_to_create, ""),
+
+    recommendedLength: asNullableString(raw.recommended_length),
+    openingMove: asNullableString(raw.opening_move),
+
+    hook: asString(raw.hook, ""),
+    script: asString(raw.script, ""),
+
+    executionContext: normalizeExecutionContext(executionContextRaw),
+
+    executionSteps: asArray<string>(raw.execution_steps),
+
+    creativeConstraints: {
+      avoid: asArray<string>(creativeConstraintsRaw.avoid),
+      mustInclude: asArray<string>(creativeConstraintsRaw.must_include),
+      styleNotes: asArray<string>(creativeConstraintsRaw.style_notes),
+    },
+
+    aiReadyOutput: {
+      displayLabel: asString(
+        aiReadyOutputRaw.display_label,
+        "Ready-to-Use AI Prompt"
+      ),
+      context: Object.keys(aiReadyContext).length ? aiReadyContext : null,
+    },
+
+    contentComponents: {
+      cta: asNullableString(contentComponentsRaw.cta),
+      hashtags: asArray<string>(contentComponentsRaw.hashtags),
+      openingHook: asNullableString(contentComponentsRaw.opening_hook),
+      supportingBeats: asArray<string>(contentComponentsRaw.supporting_beats),
+      patternType: asNullableString(contentComponentsRaw.pattern_type),
+    },
+
+    whyThisWorks: asNullableString(raw.why_this_works),
+    decisionRationale: asNullableString(raw.decision_rationale),
+
+    confidenceLabel: asNullableString(raw.confidence_label),
+    readiness: asNullableString(raw.readiness),
+
+    selectionMetadata: {
+      rank: asNumberOrNull(selectionMetadataRaw.rank),
+      rankScore: asNumberOrNull(selectionMetadataRaw.rank_score),
+      candidateCount: asNumber(selectionMetadataRaw.candidate_count),
+      validCandidateCount: asNumber(selectionMetadataRaw.valid_candidate_count),
+      selectionReason: asNullableString(selectionMetadataRaw.selection_reason),
+      selectionFactors: asArray<string>(selectionMetadataRaw.selection_factors),
+    },
+
+    sourceLineage: {
+      sourceInsightId: asNullableString(sourceLineageRaw.source_insight_id),
+      sourceHookId: asNullableString(sourceLineageRaw.source_hook_id),
+      sourceScriptId: asNullableString(sourceLineageRaw.source_script_id),
+      sourcePostIds: asArray<string>(sourceLineageRaw.source_post_ids),
+    },
+  };
+}
+
+function normalizeSupportingOptions(
+  value: unknown,
+  finalOutput: AnyRecord
+): DashboardSupportingOptions {
+  const raw = asObject(value);
+
+  const alternateDirections = asArray<AnyRecord>(
+    raw.alternate_directions
+  ).map((direction) => {
+    const selectionReasonObject = asObject(direction.selection_reason);
+    const selectionReasonArray = asArray<string>(direction.selection_reason);
+
+    return {
+      title: asString(direction.title, "Alternate Direction"),
+      hook: asString(direction.hook, ""),
+      angle: asString(direction.angle, ""),
+      sourceInsightId: asNullableString(direction.source_insight_id),
+      sourceHookId: asNullableString(direction.source_hook_id),
+      sourceScriptId: asNullableString(direction.source_script_id),
+      patternFamily: asNullableString(direction.pattern_family),
+      patternInsight: asNullableString(direction.pattern_insight),
+      selectionReason: Object.keys(selectionReasonObject).length
+        ? selectionReasonObject
+        : selectionReasonArray.length
+          ? selectionReasonArray
+          : null,
+    };
+  });
+
+  const ideasFromV2 = asArray<AnyRecord>(raw.idea_bank);
+  const ideasFromLegacy = asArray<AnyRecord>(finalOutput.idea_bank);
+  const ideas = ideasFromV2.length ? ideasFromV2 : ideasFromLegacy;
+
+  return {
+    alternateDirections,
+    ideaBank: ideas.map((idea, index) => ({
+      id: asNullableString(idea.idea_id ?? idea.id) ?? `idea-${index + 1}`,
+      label: asString(idea.label || idea.text, "Untitled idea"),
+      text: asString(idea.text, ""),
+      type: asNullableString(idea.idea_type ?? idea.type),
+      angle: asNullableString(idea.angle),
+    })),
+  };
+}
+
+function normalizeSystemStatus(value: unknown): DashboardSystemStatus | null {
+  const raw = asObject(value);
+  if (!Object.keys(raw).length) return null;
+
+  const trustStatusRaw = asObject(raw.trust_status);
+  const countsRaw = asObject(raw.counts);
+
+  return {
+    outputTier: asString(raw.output_tier, "usable") as OutputTier,
+    trustStatus: {
+      freshness: asNullableString(trustStatusRaw.freshness),
+      analyzedAt: asNullableString(trustStatusRaw.analyzed_at),
+      createdAt: asNullableString(trustStatusRaw.created_at),
+      platform: asString(trustStatusRaw.platform, "tiktok"),
+      chainType: asNullableString(trustStatusRaw.chain_type),
+    },
+    warnings: asArray<string>(raw.warnings),
+    flags: asObject(raw.flags),
+    counts: {
+      candidateCount: asNumber(countsRaw.candidate_count),
+      validCandidateCount: asNumber(countsRaw.valid_candidate_count),
+      rankedCandidateCount: asNumber(countsRaw.ranked_candidate_count),
+      backupPlayCount: asNumber(countsRaw.backup_play_count),
+      ideaBankCount: asNumber(countsRaw.idea_bank_count),
+    },
+  };
+}
+
 export function normalizeDefaultResponse(
   root: AnyRecord,
   queryFallback: string,
@@ -192,6 +357,13 @@ export function normalizeDefaultResponse(
       timestamp,
       chainType: primaryChainType,
     }),
+
+    directive: normalizeDirective(finalOutput.directive),
+    supportingOptions: normalizeSupportingOptions(
+      finalOutput.supporting_options,
+      finalOutput
+    ),
+    systemStatus: normalizeSystemStatus(finalOutput.system_status),
 
     primaryPlay: primary
       ? {

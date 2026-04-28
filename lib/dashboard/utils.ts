@@ -5,56 +5,181 @@ export type GatingDecision = "allow" | "warn" | "block";
 export type OutputTier = "strong" | "usable" | "minimal" | "degraded";
 export type PlanType = "free" | "pro" | "creator";
 
-export function normalizeGating(
-  root: AnyRecord,
-  mode: RequestedOutput,
-  fallbackPlanType: PlanType = "free"
-): DashboardNormalizedResponse["gating"] {
-  const gating = asObject(root.gating);
+export type LlmReadyContext = {
+  creatorIntent?: string | null;
+  contentGoal?: string | null;
+  targetPlatform?: string | null;
+  chainType?: string | null;
+  fallbackUsed?: boolean | null;
 
-  if (!Object.keys(gating).length) {
-    return defaultGatingForMode(mode, fallbackPlanType);
-  }
+  format?: {
+    type?: string | null;
+    durationSeconds?: string | null;
+    aspectRatio?: string | null;
+  } | null;
 
-  const planType = normalizePlanType(gating.plan_type ?? fallbackPlanType);
-  const usageDefaults = getPlanUsageDefaults(planType);
-  const usage = asObject(gating.usage);
+  hook?: {
+    text?: string | null;
+    delivery?: string | null;
+  } | null;
 
-return {
-  decision:
-    gating.decision === "warn" || gating.decision === "block"
-      ? gating.decision
-      : "allow",
-  plan_type: planType,
-  usage_type:
-    gating.usage_type === "full_query" || gating.usage_type === "light_search"
-      ? gating.usage_type
-      : mode === "default"
-        ? "full_query"
-        : "light_search",
-  warning_code: gating.warning_code ?? undefined,
-  limit_type: gating.limit_type ?? undefined,
-  message: gating.message ?? undefined,
-  usage: {
-    searches_remaining: asNumber(
-      usage.searches_remaining,
-      usageDefaults.searches_remaining
-    ),
-    searches_limit: asNumber(
-      usage.searches_limit,
-      usageDefaults.searches_limit
-    ),
-    full_content_searches_remaining: asNumber(
-      usage.full_content_searches_remaining,
-      usageDefaults.full_content_searches_remaining
-    ),
-    full_content_searches_limit: asNumber(
-      usage.full_content_searches_limit,
-      usageDefaults.full_content_searches_limit
-    ),
-  },
+  script?: {
+    structure?: Array<{
+      section?: string | null;
+      instruction?: string | null;
+    }>;
+    fullText?: string | null;
+  } | null;
+
+  visualDirection?: {
+    style?: string | null;
+    pacing?: string | null;
+    camera?: string | null;
+    sceneNotes?: string[];
+  } | null;
+
+  tone?: {
+    voice?: string | null;
+    energy?: string | null;
+    deliveryStyle?: string | null;
+  } | null;
+
+  contentComponents?: {
+    openingHook?: string | null;
+    supportingBeats?: string[];
+    cta?: string | null;
+  } | null;
+
+  sourceLineage?: {
+    sourceInsightId?: string | null;
+    sourceHookId?: string | null;
+    sourceScriptId?: string | null;
+    sourcePostIds?: string[];
+  } | null;
+
+  patternSignals?: string[];
+  constraints?: string[];
+  successCriteria?: string[];
 };
-}
+
+export type DashboardDirective = {
+  version: string;
+  directiveId: string;
+  requestFingerprint: string;
+  generatedAt: string | null;
+
+  directiveType: string;
+  platform: string;
+
+  queryContext: {
+    queryTerm: string | null;
+    rawQuery: string | null;
+    requestedOutput: string | null;
+    audienceOrNiche: string | null;
+  };
+
+  title: string;
+  coreDecision: string;
+  whatToCreate: string;
+
+  recommendedLength: string | null;
+  openingMove: string | null;
+
+  hook: string;
+  script: string;
+
+  executionContext?: {
+    formatType: string;
+    deliveryStyle: string;
+    pacing: string;
+    visualStructure: string;
+    tone: string;
+  };
+
+  executionSteps: string[];
+
+  creativeConstraints: {
+    avoid: string[];
+    mustInclude: string[];
+    styleNotes: string[];
+  };
+
+  aiReadyOutput: {
+    displayLabel: string;
+    context: AnyRecord | null;
+  };
+
+  contentComponents: {
+    cta: string | null;
+    hashtags: string[];
+    openingHook: string | null;
+    supportingBeats: string[];
+    patternType: string | null;
+  };
+
+  whyThisWorks: string | null;
+  decisionRationale: string | null;
+
+  confidenceLabel: string | null;
+  readiness: string | null;
+
+  selectionMetadata: {
+    rank: number | null;
+    rankScore: number | null;
+    candidateCount: number;
+    validCandidateCount: number;
+    selectionReason: string | null;
+    selectionFactors: string[];
+  };
+
+  sourceLineage: {
+    sourceInsightId: string | null;
+    sourceHookId: string | null;
+    sourceScriptId: string | null;
+    sourcePostIds: string[];
+  };
+};
+
+export type DashboardSupportingOptions = {
+  alternateDirections: Array<{
+    title: string;
+    hook: string;
+    angle: string;
+    sourceInsightId: string | null;
+    sourceHookId: string | null;
+    sourceScriptId: string | null;
+    patternFamily: string | null;
+    patternInsight: string | null;
+    selectionReason: AnyRecord | string[] | null;
+  }>;
+  ideaBank: Array<{
+    id: string | null;
+    label: string;
+    text: string;
+    type: string | null;
+    angle: string | null;
+  }>;
+};
+
+export type DashboardSystemStatus = {
+  outputTier: OutputTier;
+  trustStatus: {
+    freshness: string | null;
+    analyzedAt: string | null;
+    createdAt: string | null;
+    platform: string;
+    chainType: string | null;
+  };
+  warnings: string[];
+  flags: Record<string, unknown>;
+  counts: {
+    candidateCount: number;
+    validCandidateCount: number;
+    rankedCandidateCount: number;
+    backupPlayCount: number;
+    ideaBankCount: number;
+  };
+};
 
 export type DashboardNormalizedResponse = {
   success: boolean;
@@ -86,6 +211,10 @@ export type DashboardNormalizedResponse = {
     platformLabel: string;
     chainLabel: string | null;
   };
+
+  directive?: DashboardDirective | null;
+  supportingOptions?: DashboardSupportingOptions;
+  systemStatus?: DashboardSystemStatus | null;
 
   primaryPlay: {
     title: string;
@@ -149,62 +278,56 @@ export type DashboardNormalizedResponse = {
   };
 };
 
-export type LlmReadyContext = {
-  creatorIntent?: string | null;
-  contentGoal?: string | null;
-  targetPlatform?: string | null;
-  chainType?: string | null;
-  fallbackUsed?: boolean | null;
+export function normalizeGating(
+  root: AnyRecord,
+  mode: RequestedOutput,
+  fallbackPlanType: PlanType = "free"
+): DashboardNormalizedResponse["gating"] {
+  const gating = asObject(root.gating);
 
-  format?: {
-    type?: string | null;
-    durationSeconds?: string | null;
-    aspectRatio?: string | null;
-  } | null;
+  if (!Object.keys(gating).length) {
+    return defaultGatingForMode(mode, fallbackPlanType);
+  }
 
-  hook?: {
-    text?: string | null;
-    delivery?: string | null;
-  } | null;
+  const planType = normalizePlanType(gating.plan_type ?? fallbackPlanType);
+  const usageDefaults = getPlanUsageDefaults(planType);
+  const usage = asObject(gating.usage);
 
-  script?: {
-    structure?: Array<{
-      section?: string | null;
-      instruction?: string | null;
-    }>;
-    fullText?: string | null;
-  } | null;
-
-  visualDirection?: {
-    style?: string | null;
-    pacing?: string | null;
-    camera?: string | null;
-    sceneNotes?: string[];
-  } | null;
-
-  tone?: {
-    voice?: string | null;
-    energy?: string | null;
-    deliveryStyle?: string | null;
-  } | null;
-
-  contentComponents?: {
-    openingHook?: string | null;
-    supportingBeats?: string[];
-    cta?: string | null;
-  } | null;
-
-  sourceLineage?: {
-    sourceInsightId?: string | null;
-    sourceHookId?: string | null;
-    sourceScriptId?: string | null;
-    sourcePostIds?: string[];
-  } | null;
-
-  patternSignals?: string[];
-  constraints?: string[];
-  successCriteria?: string[];
-};
+  return {
+    decision:
+      gating.decision === "warn" || gating.decision === "block"
+        ? gating.decision
+        : "allow",
+    plan_type: planType,
+    usage_type:
+      gating.usage_type === "full_query" || gating.usage_type === "light_search"
+        ? gating.usage_type
+        : mode === "default"
+          ? "full_query"
+          : "light_search",
+    warning_code: gating.warning_code ?? undefined,
+    limit_type: gating.limit_type ?? undefined,
+    message: gating.message ?? undefined,
+    usage: {
+      searches_remaining: asNumber(
+        usage.searches_remaining,
+        usageDefaults.searches_remaining
+      ),
+      searches_limit: asNumber(
+        usage.searches_limit,
+        usageDefaults.searches_limit
+      ),
+      full_content_searches_remaining: asNumber(
+        usage.full_content_searches_remaining,
+        usageDefaults.full_content_searches_remaining
+      ),
+      full_content_searches_limit: asNumber(
+        usage.full_content_searches_limit,
+        usageDefaults.full_content_searches_limit
+      ),
+    },
+  };
+}
 
 export function asObject(value: unknown): AnyRecord {
   return value && typeof value === "object" && !Array.isArray(value)
