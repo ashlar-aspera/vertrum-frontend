@@ -1,4 +1,3 @@
-import BackupPlayCard from "@/components/BackupPlayCard";
 import DebugDrawer from "@/components/DebugDrawer";
 import IdeaBankSection from "@/components/IdeaBankSection";
 import PrimaryPlayCard from "@/components/PrimaryPlayCard";
@@ -98,14 +97,46 @@ type DashboardResponse = {
     chainLabel: string | null;
   };
 
-  directive?: {
+    directive?: {
     title: string;
     coreDecision: string;
     whatToCreate: string;
+    recommendedLength: string | null;
+    openingMove: string | null;
+
     hook: string;
     script: string;
+
+    executionContext?: {
+      formatType: string;
+      deliveryStyle: string;
+      pacing: string;
+      visualStructure: string;
+      tone: string;
+    };
+
+    executionSteps: string[];
+
+    creativeConstraints: {
+      avoid: string[];
+      mustInclude: string[];
+      styleNotes: string[];
+    };
+
+    contentComponents: {
+      cta: string | null;
+      hashtags: string[];
+      openingHook: string | null;
+      supportingBeats: string[];
+      patternType: string | null;
+    };
+
+    whyThisWorks: string | null;
+    decisionRationale: string | null;
+
     confidenceLabel: string | null;
     readiness: string | null;
+
     aiReadyOutput: {
       displayLabel: string;
       context: LlmReadyContext | null;
@@ -493,16 +524,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
                 <div className="grid min-w-0 gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start">
   <div className="min-w-0 space-y-6">
-  {data.directive ? (
-    <DirectiveCard directive={data.directive} />
-  ) : null}
+    {data.directive ? (
+      <DirectiveCard directive={data.directive} />
+    ) : null}
 
-  {data.primaryPlay ? (
-    <PrimaryPlayCard primaryPlay={data.primaryPlay} />
-  ) : (
-    <EmptyPrimaryState />
-  )}
-</div>
+    {data.primaryPlay ? (
+      <PrimaryPlayCard primaryPlay={data.primaryPlay} />
+    ) : (
+      <EmptyPrimaryState />
+    )}
+  </div>
 
   <aside className="min-w-0 space-y-6">
     {(
@@ -517,34 +548,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         }
       />
     ) : null}
-
-    <section className="min-w-0">
-      <div className="mb-3 text-sm font-medium uppercase tracking-[0.14em] text-slate-500">
-        Alternate Directions
-      </div>
-
-      {(
-  data.supportingOptions?.alternateDirections?.length ||
-  data.backupPlays.length
-) ? (
-  <div className="space-y-4">
-    {(data.supportingOptions?.alternateDirections?.length
-      ? data.supportingOptions.alternateDirections.map((direction) => ({
-          title: direction.title,
-          angle: direction.angle || direction.patternInsight || "",
-          tag: direction.patternFamily || "alternate direction",
-        }))
-      : data.backupPlays
-    ).map((play, index) => (
-      <BackupPlayCard key={index} play={play} />
-    ))}
-  </div>
-) : (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
-          No alternate directions available for this result.
-        </div>
-      )}
-    </section>
   </aside>
 </div>
 
