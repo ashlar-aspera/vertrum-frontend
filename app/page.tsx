@@ -518,13 +518,23 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         Alternate Directions
       </div>
 
-      {data.backupPlays.length ? (
-        <div className="space-y-4">
-          {data.backupPlays.map((play, index) => (
-            <BackupPlayCard key={index} play={play} />
-          ))}
-        </div>
-      ) : (
+      {(
+  data.supportingOptions?.alternateDirections?.length ||
+  data.backupPlays.length
+) ? (
+  <div className="space-y-4">
+    {(data.supportingOptions?.alternateDirections?.length
+      ? data.supportingOptions.alternateDirections.map((direction) => ({
+          title: direction.title,
+          angle: direction.angle || direction.patternInsight || "",
+          tag: direction.patternFamily || "alternate direction",
+        }))
+      : data.backupPlays
+    ).map((play, index) => (
+      <BackupPlayCard key={index} play={play} />
+    ))}
+  </div>
+) : (
         <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
           No alternate directions available for this result.
         </div>
