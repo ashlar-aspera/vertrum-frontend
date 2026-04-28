@@ -9,6 +9,7 @@ import StateMessage from "@/components/StateMessage";
 import StrengthCard from "@/components/StrengthCard";
 import UsageBanner from "@/components/UsageBanner";
 import { headers } from "next/headers";
+import DirectiveCard from "@/components/DirectiveCard";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -491,13 +492,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 </div>
 
                 <div className="grid min-w-0 gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start">
-  <div className="min-w-0">
-    {data.primaryPlay ? (
-      <PrimaryPlayCard primaryPlay={data.primaryPlay} />
-    ) : (
-      <EmptyPrimaryState />
-    )}
-  </div>
+  <div className="min-w-0 space-y-6">
+  {data.directive ? (
+    <DirectiveCard directive={data.directive} />
+  ) : null}
+
+  {data.primaryPlay ? (
+    <PrimaryPlayCard primaryPlay={data.primaryPlay} />
+  ) : (
+    <EmptyPrimaryState />
+  )}
+</div>
 
   <aside className="min-w-0 space-y-6">
     {(
